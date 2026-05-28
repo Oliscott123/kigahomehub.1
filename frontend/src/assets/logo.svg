@@ -1,0 +1,14 @@
+<svg width="160" height="40" viewBox="0 0 160 40" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Kigali Home Hub logo">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1">
+      <stop offset="0%" stop-color="#06b6d4" />
+      <stop offset="100%" stop-color="#7c3aed" />
+    </linearGradient>
+  </defs>
+  <g fill="none" fill-rule="evenodd">
+    <rect width="160" height="40" rx="8" fill="transparent" />
+    <path d="M10 22 L18 14 L26 22 V30 H10z" fill="url(#g)" />
+    <path d="M18 12 L18 6" stroke="#0f172a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.15" />
+    <text x="36" y="26" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">Kigali Home Hub</text>
+  </g>
+</svg>
