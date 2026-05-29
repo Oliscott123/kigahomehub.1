@@ -7,10 +7,34 @@ import { ADMIN_PHONE, DEFAULT_WA_MESSAGE } from '../config';
 export default function PropertyPage() {
   const { id } = useParams();
   const [home, setHome] = useState(null);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    api.get(`/homes/${id}`).then((response) => setHome(response.data));
+    const loadHome = async () => {
+      try {
+        setError('');
+        const response = await api.get(`/homes/${id}`);
+        if (!response.data || typeof response.data !== 'object') {
+          throw new Error('Backend returned an unexpected response.');
+        }
+        setHome(response.data);
+      } catch (err) {
+        setHome(null);
+        setError(err?.response?.data?.error || err.message || 'Unable to load property details.');
+      }
+    };
+
+    loadHome();
   }, [id]);
+
+  if (error) {
+    return (
+      <div className="rounded-[2rem] border border-rose-200 bg-rose-50 p-6 text-rose-800 shadow-sm shadow-rose-100">
+        <p className="font-semibold">Unable to load property details</p>
+        <p>{error}</p>
+      </div>
+    );
+  }
 
   if (!home) {
     return <div className="text-center text-slate-500">Loading property details...</div>;

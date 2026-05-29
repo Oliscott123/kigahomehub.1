@@ -30,6 +30,9 @@ export default function ListingPage() {
     try {
       setError('');
       const response = await api.get('/homes', { params });
+      if (!Array.isArray(response.data)) {
+        throw new Error('Backend returned an unexpected response.');
+      }
       setHomes(response.data);
     } catch (err) {
       setHomes([]);

@@ -14,8 +14,12 @@ export default function HomePage() {
       try {
         setError('');
         const response = await api.get('/homes');
+        if (!Array.isArray(response.data)) {
+          throw new Error('Backend returned an unexpected response.');
+        }
         setHomes(response.data.slice(0, 6));
       } catch (err) {
+        setHomes([]);
         setError(err?.response?.data?.error || err.message || 'Unable to load featured homes.');
       }
     };

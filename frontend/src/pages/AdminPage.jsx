@@ -19,8 +19,16 @@ export default function AdminPage() {
   const [status, setStatus] = useState('');
 
   const loadHomes = async () => {
-    const response = await api.get('/homes');
-    setHomes(response.data);
+    try {
+      const response = await api.get('/homes');
+      if (!Array.isArray(response.data)) {
+        throw new Error('Backend returned an unexpected response.');
+      }
+      setHomes(response.data);
+    } catch (err) {
+      setHomes([]);
+      setStatus(err?.response?.data?.error || err.message || 'Unable to load listings.');
+    }
   };
 
   useEffect(() => {
