@@ -43,13 +43,23 @@ app.get('/api/health', (req, res) => {
   res.send({ status: 'ok' });
 });
 
-db.init()
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`Backend listening on http://localhost:${PORT}`);
+app.get('/api/db-health', async (req, res) => {
+  try {
+    await db.query('SELECT 1 AS ok');
+    res.send({ status: 'ok' });
+  } catch (error) {
+    console.error('Database health check failed', error);
+    res.status(500).send({
+      status: 'error',
+      message: error.message,
     });
-  })
-  .catch((error) => {
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`Backend listening on http://localhost:${PORT}`);
+
+  db.init().catch((error) => {
     console.error('Failed to initialize database', error);
-    process.exit(1);
   });
+});
