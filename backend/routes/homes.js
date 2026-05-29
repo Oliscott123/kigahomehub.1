@@ -1,13 +1,17 @@
 const express = require('express');
+const fs = require('fs');
 const multer = require('multer');
 const path = require('path');
 const pool = require('../db');
 const authenticate = require('../middleware/auth');
 
 const router = express.Router();
+const uploadDir = process.env.UPLOAD_DIR || path.join(__dirname, '..', 'uploads');
+
+fs.mkdirSync(uploadDir, { recursive: true });
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, path.join(__dirname, '..', 'uploads')),
+  destination: (req, file, cb) => cb(null, uploadDir),
   filename: (req, file, cb) => {
     const suffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
     cb(null, `${suffix}-${file.originalname}`);
@@ -151,8 +155,7 @@ router.delete('/:id/images', authenticate, async (req, res) => {
     await pool.query('UPDATE homes SET images = ? WHERE id = ?', [JSON.stringify(updatedImages), req.params.id]);
 
     if (imageUrl && imageUrl.startsWith('/uploads/')) {
-      const filePath = path.join(__dirname, '..', imageUrl);
-      const fs = require('fs');
+      const filePath = path.join(uploadDir, path.basename(imageUrl));
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
       }
