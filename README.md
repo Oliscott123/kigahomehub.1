@@ -40,3 +40,16 @@ A modern real estate web app built with React, Tailwind CSS, Express, and MySQL.
 - Uploaded images are stored in `backend/uploads`.
 - Use the login page at `/login` to access the admin dashboard.
 - Default admin credentials are `admin` / `password` unless changed in `backend/.env`.
+
+## Deploying to Vercel
+This repository deploys the React frontend to Vercel. The Express/MySQL backend needs its own host, because it depends on a persistent MySQL database and uploaded files.
+
+1. Remove any old Vercel config that contains a `services` property. Vercel now rejects that field.
+2. In Vercel, set the project root to the repository root or to `frontend`.
+   - Repository root works with the root `vercel.json`.
+   - `frontend` works with `frontend/vercel.json`.
+3. Set the frontend environment variable:
+   ```bash
+   VITE_API_URL=https://your-backend-domain.example/api
+   ```
+4. Add the custom domain in Vercel as `kigalihomehub.space` and confirm the DNS records Vercel gives you.

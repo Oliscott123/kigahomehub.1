@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom';
+import { assetUrl } from '../api';
 
 export default function HomeCard({ home }) {
   return (
     <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
       <div className="h-60 w-full overflow-hidden bg-slate-100">
         <img
-          src={home.images?.[0] || 'https://via.placeholder.com/640x420?text=Home'}
+          src={assetUrl(home.images?.[0]) || 'https://via.placeholder.com/640x420?text=Home'}
           alt={home.title}
           className="h-full w-full object-cover"
         />

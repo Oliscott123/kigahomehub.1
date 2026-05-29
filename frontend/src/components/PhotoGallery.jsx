@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { assetUrl } from '../api'
 
 export default function PhotoGallery({ images = [] }) {
   const imgs = images.slice(0, 5)
@@ -11,7 +12,7 @@ export default function PhotoGallery({ images = [] }) {
   return (
     <div>
       <div className="relative rounded-3xl overflow-hidden">
-        <img src={imgs[index]} alt={`image-${index}`} className="h-96 w-full object-cover" />
+        <img src={assetUrl(imgs[index])} alt={`image-${index}`} className="h-96 w-full object-cover" />
         <button
           onClick={() => setIndex((i) => (i - 1 + imgs.length) % imgs.length)}
           className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/80 p-2 shadow"
@@ -35,7 +36,7 @@ export default function PhotoGallery({ images = [] }) {
             onClick={() => setIndex(i)}
             className={`h-20 w-28 overflow-hidden rounded-lg ${i === index ? 'ring-2 ring-cyan-400' : ''}`}
           >
-            <img src={src} alt={`thumb-${i}`} className="h-full w-full object-cover" />
+            <img src={assetUrl(src)} alt={`thumb-${i}`} className="h-full w-full object-cover" />
           </button>
         ))}
       </div>
