@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const defaultApiUrl = import.meta.env.PROD ? '/api' : 'http://localhost:4000/api';
+const defaultApiUrl = import.meta.env.PROD
+  ? 'https://kigalihomehub-backend.onrender.com/api'
+  : 'http://localhost:4000/api';
 export const API_BASE_URL = import.meta.env.VITE_API_URL || defaultApiUrl;
 
 function getApiOrigin(baseUrl) {

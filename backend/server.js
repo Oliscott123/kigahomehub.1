@@ -5,6 +5,7 @@ const path = require('path');
 const dotenv = require('dotenv');
 const homesRouter = require('./routes/homes');
 const authRouter = require('./routes/auth');
+const db = require('./db');
 
 dotenv.config();
 
@@ -42,6 +43,13 @@ app.get('/api/health', (req, res) => {
   res.send({ status: 'ok' });
 });
 
-app.listen(PORT, () => {
-  console.log(`Backend listening on http://localhost:${PORT}`);
-});
+db.init()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Backend listening on http://localhost:${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error('Failed to initialize database', error);
+    process.exit(1);
+  });
