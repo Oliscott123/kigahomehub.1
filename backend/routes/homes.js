@@ -21,7 +21,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 const parseImages = (row) => {
-  const images = row.images ? JSON.parse(row.images) : [];
+  const images = Array.isArray(row.images) ? row.images : JSON.parse(row.images || '[]');
   return { ...row, images };
 };
 
@@ -33,7 +33,7 @@ router.get('/', async (req, res) => {
     const filters = [];
 
     if (location) {
-      filters.push('location LIKE ?');
+      filters.push('location ILIKE ?');
       params.push(`%${location}%`);
     }
     if (priceMin) {
@@ -47,6 +47,7 @@ router.get('/', async (req, res) => {
     if (filters.length) {
       query += ' WHERE ' + filters.join(' AND ');
     }
+    query += ' ORDER BY created_at DESC';
 
     const [rows] = await pool.query(query, params);
     res.json(rows.map(parseImages));
@@ -72,11 +73,11 @@ router.get('/:id', async (req, res) => {
 router.post('/', authenticate, async (req, res) => {
   try {
     const { title, description, location, price, bedrooms, bathrooms, images } = req.body;
-    const [result] = await pool.query(
-      'INSERT INTO homes (title, description, location, price, bedrooms, bathrooms, images) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    const [rows] = await pool.query(
+      'INSERT INTO homes (title, description, location, price, bedrooms, bathrooms, images) VALUES (?, ?, ?, ?, ?, ?, ?::jsonb) RETURNING id',
       [title, description, location, price, bedrooms, bathrooms, JSON.stringify(images || [])]
     );
-    res.status(201).json({ id: result.insertId });
+    res.status(201).json({ id: rows[0].id });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to create home' });
@@ -87,7 +88,7 @@ router.put('/:id', authenticate, async (req, res) => {
   try {
     const { title, description, location, price, bedrooms, bathrooms, images } = req.body;
     await pool.query(
-      'UPDATE homes SET title = ?, description = ?, location = ?, price = ?, bedrooms = ?, bathrooms = ?, images = ? WHERE id = ?',
+      'UPDATE homes SET title = ?, description = ?, location = ?, price = ?, bedrooms = ?, bathrooms = ?, images = ?::jsonb WHERE id = ?',
       [title, description, location, price, bedrooms, bathrooms, JSON.stringify(images || []), req.params.id]
     );
     res.json({ success: true });
@@ -119,10 +120,10 @@ router.post('/:id/images', authenticate, upload.single('image'), async (req, res
       return res.status(404).json({ error: 'Home not found' });
     }
 
-    const currentImages = rows[0].images ? JSON.parse(rows[0].images) : [];
+    const currentImages = Array.isArray(rows[0].images) ? rows[0].images : JSON.parse(rows[0].images || '[]');
     currentImages.push(imageUrl);
 
-    await pool.query('UPDATE homes SET images = ? WHERE id = ?', [JSON.stringify(currentImages), req.params.id]);
+    await pool.query('UPDATE homes SET images = ?::jsonb WHERE id = ?', [JSON.stringify(currentImages), req.params.id]);
     res.status(201).json({ imageUrl });
   } catch (error) {
     console.error(error);
@@ -138,7 +139,7 @@ router.delete('/:id/images', authenticate, async (req, res) => {
       return res.status(404).json({ error: 'Home not found' });
     }
 
-    const currentImages = rows[0].images ? JSON.parse(rows[0].images) : [];
+    const currentImages = Array.isArray(rows[0].images) ? rows[0].images : JSON.parse(rows[0].images || '[]');
     let updatedImages = currentImages;
 
     if (typeof index === 'number') {
@@ -152,7 +153,7 @@ router.delete('/:id/images', authenticate, async (req, res) => {
       return res.status(400).json({ error: 'index or imageUrl required' });
     }
 
-    await pool.query('UPDATE homes SET images = ? WHERE id = ?', [JSON.stringify(updatedImages), req.params.id]);
+    await pool.query('UPDATE homes SET images = ?::jsonb WHERE id = ?', [JSON.stringify(updatedImages), req.params.id]);
 
     if (imageUrl && imageUrl.startsWith('/uploads/')) {
       const filePath = path.join(uploadDir, path.basename(imageUrl));
